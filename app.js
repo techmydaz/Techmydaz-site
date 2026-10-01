@@ -245,6 +245,7 @@ async function loadProducts() {
         const oldPrice = getValue(row, "Preço Anterior");
         const badge = getValue(row, "Badge");
         const url = getValue(row, "Link da Oferta");
+        const image = getValue(row, "Imagem");
         const active = getValue(row, "Ativo");
 
         const info = categoryInfo(categoryName);
@@ -264,7 +265,7 @@ async function loadProducts() {
           old: formatPrice(oldPrice),
 
           icon: info.icon,
-          image: row["Imagem"] || "",
+          image: image,
 
           badge: badge || "OFERTA",
 
