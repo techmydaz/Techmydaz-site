@@ -386,9 +386,7 @@ function renderProducts() {
             ${product.store}
           </span>
 
-          <span>
-            ${product.icon}
-          </span>
+          <img src="${product.image || ''}" alt="${product.name}" loading="lazy">
 
         </div>
 
