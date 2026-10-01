@@ -264,6 +264,7 @@ async function loadProducts() {
           old: formatPrice(oldPrice),
 
           icon: info.icon,
+          image: row["Imagem"] || "",
 
           badge: badge || "OFERTA",
 
