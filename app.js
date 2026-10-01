@@ -9,17 +9,11 @@ const categories = [
   ["eletronicos", "⚡", "Eletrônicos"]
 ];
 
+
 /*
   =====================================================
   CONFIGURAÇÃO DO WHATSAPP
   =====================================================
-
-  Quando você tiver o link do grupo, coloque aqui.
-
-  Exemplo:
-  const WHATSAPP_GROUP = "https://chat.whatsapp.com/SEU-LINK";
-
-  Por enquanto deixamos vazio para não abrir um link quebrado.
 */
 
 const WHATSAPP_GROUP = "";
@@ -27,145 +21,288 @@ const WHATSAPP_GROUP = "";
 
 /*
   =====================================================
-  PRODUTOS
+  GOOGLE SHEETS
   =====================================================
 
-  O campo "url" será o link da oferta.
+  Essa é a planilha publicada em CSV.
 
-  Por enquanto está "#".
-  Depois vamos colocar os seus links reais da
-  Shopee, Mercado Livre e Amazon.
+  Quando você alterar os produtos/preços na planilha,
+  o site buscará os dados daqui.
 */
 
-const products = [
+const SHEET_CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzzZ4WRBTBBG5Ao1hCdAzKACD6o51WpM4NjOJPciID9Z0fpFwU10Ynj5mVizSOoQ/pub?output=csv";
 
-  {
-    name: "Placa de vídeo RTX 4060 8GB",
-    cat: "gpu",
-    catName: "Placas de vídeo",
-    store: "Shopee",
-    price: "R$ 1.799",
-    old: "R$ 2.199",
-    icon: "🎮",
-    badge: "OFERTA",
-    url: "#"
-  },
 
-  {
-    name: "Monitor Gamer 24\" 144Hz",
-    cat: "monitor",
-    catName: "Monitores",
-    store: "Mercado Livre",
-    price: "R$ 699",
-    old: "R$ 899",
-    icon: "🖥️",
-    badge: "TOP",
-    url: "#"
-  },
+/*
+  =====================================================
+  PRODUTOS
+  =====================================================
+*/
 
-  {
-    name: "SSD NVMe 1TB",
-    cat: "pecas",
-    catName: "Peças de PC",
-    store: "Amazon",
-    price: "R$ 389",
-    old: "R$ 479",
-    icon: "💾",
-    badge: "OFERTA",
-    url: "#"
-  },
+let products = [];
 
-  {
-    name: "Teclado mecânico RGB",
-    cat: "periferico",
-    catName: "Periféricos",
-    store: "Shopee",
-    price: "R$ 129",
-    old: "R$ 189",
-    icon: "⌨️",
-    badge: "ACHADO",
-    url: "#"
-  },
 
-  {
-    name: "Mouse Gamer sem fio",
-    cat: "periferico",
-    catName: "Periféricos",
-    store: "Mercado Livre",
-    price: "R$ 159",
-    old: "R$ 229",
-    icon: "🖱️",
-    badge: "TOP",
-    url: "#"
-  },
-
-  {
-    name: "Memória RAM 16GB DDR4",
-    cat: "pecas",
-    catName: "Peças de PC",
-    store: "Amazon",
-    price: "R$ 249",
-    old: "R$ 329",
-    icon: "🧠",
-    badge: "OFERTA",
-    url: "#"
-  },
-
-  {
-    name: "Celular 256GB",
-    cat: "celular",
-    catName: "Celulares",
-    store: "Shopee",
-    price: "R$ 999",
-    old: "R$ 1.199",
-    icon: "📱",
-    badge: "OFERTA",
-    url: "#"
-  },
-
-  {
-    name: "Headset Gamer 7.1",
-    cat: "audio",
-    catName: "Áudio",
-    store: "Amazon",
-    price: "R$ 219",
-    old: "R$ 299",
-    icon: "🎧",
-    badge: "TOP",
-    url: "#"
-  },
-
-  {
-    name: "PC Gamer Ryzen 5",
-    cat: "pc",
-    catName: "PC Gamer",
-    store: "Mercado Livre",
-    price: "R$ 2.999",
-    old: "R$ 3.499",
-    icon: "🖥️",
-    badge: "OFERTA",
-    url: "#"
-  },
-
-  {
-    name: "Fonte 650W 80 Plus",
-    cat: "pecas",
-    catName: "Peças de PC",
-    store: "Shopee",
-    price: "R$ 279",
-    old: "R$ 349",
-    icon: "🔌",
-    badge: "ACHADO",
-    url: "#"
-  }
-
-];
-
+/*
+  =====================================================
+  ELEMENTOS
+  =====================================================
+*/
 
 const $ = selector => document.querySelector(selector);
 
 let category = "todos";
 let store = "Todas";
+
+
+/*
+  =====================================================
+  FUNÇÕES AUXILIARES
+  =====================================================
+*/
+
+function normalize(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+
+function categoryInfo(categoryName) {
+
+  const name = normalize(categoryName);
+
+  const found = categories.find(
+    ([key, icon, label]) =>
+      normalize(label) === name
+  );
+
+  if (found) {
+    return {
+      cat: found[0],
+      icon: found[1],
+      catName: found[2]
+    };
+  }
+
+  return {
+    cat: "eletronicos",
+    icon: "⚡",
+    catName: categoryName || "Eletrônicos"
+  };
+}
+
+
+function formatPrice(value) {
+
+  if (value === null || value === undefined || value === "") {
+    return "";
+  }
+
+  const text = String(value).trim();
+
+  if (text.includes("R$")) {
+    return text;
+  }
+
+  const number = Number(
+    text
+      .replace(/\./g, "")
+      .replace(",", ".")
+      .replace(/[^\d.-]/g, "")
+  );
+
+  if (Number.isNaN(number)) {
+    return text;
+  }
+
+  return number.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+
+/*
+  =====================================================
+  LEITOR DE CSV
+  =====================================================
+*/
+
+function parseCSV(text) {
+
+  const rows = [];
+  let row = [];
+  let cell = "";
+  let insideQuotes = false;
+
+  for (let i = 0; i < text.length; i++) {
+
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"' && insideQuotes && next === '"') {
+      cell += '"';
+      i++;
+      continue;
+    }
+
+    if (char === '"') {
+      insideQuotes = !insideQuotes;
+      continue;
+    }
+
+    if (char === "," && !insideQuotes) {
+      row.push(cell);
+      cell = "";
+      continue;
+    }
+
+    if (
+      (char === "\n" || char === "\r") &&
+      !insideQuotes
+    ) {
+
+      if (char === "\r" && next === "\n") {
+        i++;
+      }
+
+      row.push(cell);
+      rows.push(row);
+
+      row = [];
+      cell = "";
+
+      continue;
+    }
+
+    cell += char;
+  }
+
+  if (cell !== "" || row.length > 0) {
+    row.push(cell);
+    rows.push(row);
+  }
+
+  return rows;
+}
+
+
+/*
+  =====================================================
+  CARREGAR PRODUTOS DA PLANILHA
+  =====================================================
+*/
+
+async function loadProducts() {
+
+  try {
+
+    const response = await fetch(
+      SHEET_CSV_URL + "&cache=" + Date.now()
+    );
+
+    if (!response.ok) {
+      throw new Error("Não foi possível acessar a planilha.");
+    }
+
+    const csv = await response.text();
+
+    const rows = parseCSV(csv);
+
+    if (!rows.length) {
+      throw new Error("A planilha está vazia.");
+    }
+
+    const headers = rows[0].map(header =>
+      normalize(header)
+    );
+
+    const getValue = (row, columnName) => {
+
+      const index = headers.indexOf(
+        normalize(columnName)
+      );
+
+      if (index === -1) {
+        return "";
+      }
+
+      return row[index] || "";
+    };
+
+
+    products = rows
+      .slice(1)
+      .map(row => {
+
+        const name = getValue(row, "Produto");
+        const categoryName = getValue(row, "Categoria");
+        const storeName = getValue(row, "Loja");
+        const price = getValue(row, "Preço Atual");
+        const oldPrice = getValue(row, "Preço Anterior");
+        const badge = getValue(row, "Badge");
+        const url = getValue(row, "Link da Oferta");
+        const active = getValue(row, "Ativo");
+
+        const info = categoryInfo(categoryName);
+
+        return {
+
+          name: name,
+
+          cat: info.cat,
+
+          catName: info.catName,
+
+          store: storeName,
+
+          price: formatPrice(price),
+
+          old: formatPrice(oldPrice),
+
+          icon: info.icon,
+
+          badge: badge || "OFERTA",
+
+          url: url || "#",
+
+          active:
+            normalize(active) !== "nao" &&
+            normalize(active) !== "não" &&
+            normalize(active) !== "false"
+
+        };
+
+      })
+      .filter(product =>
+        product.name &&
+        product.active
+      );
+
+
+    renderProducts();
+
+  } catch (error) {
+
+    console.error(
+      "Erro ao carregar produtos:",
+      error
+    );
+
+    $("#products").innerHTML = `
+      <div class="empty-message">
+        Não foi possível carregar as ofertas agora.
+      </div>
+    `;
+
+    $("#empty").hidden = true;
+
+  }
+
+}
 
 
 /*
@@ -207,17 +344,21 @@ function renderProducts() {
       ${product.store}
     `.toLowerCase();
 
+
     const categoryMatch =
       category === "todos" ||
       product.cat === category;
+
 
     const storeMatch =
       store === "Todas" ||
       product.store === store;
 
+
     const searchMatch =
       !q ||
       text.includes(q);
+
 
     return categoryMatch &&
            storeMatch &&
@@ -309,13 +450,17 @@ $("#categories").addEventListener("click", event => {
   document
     .querySelectorAll(".category")
     .forEach(item => {
+
       item.classList.toggle(
         "active",
         item === button
       );
+
     });
 
+
   renderProducts();
+
 
   document
     .querySelector(".offers")
@@ -343,11 +488,14 @@ $("#filters").addEventListener("click", event => {
   document
     .querySelectorAll(".filter")
     .forEach(item => {
+
       item.classList.toggle(
         "active",
         item === button
       );
+
     });
+
 
   renderProducts();
 
@@ -398,7 +546,9 @@ $("#allCategories").addEventListener(
         item.classList.remove("active");
       });
 
+
     renderProducts();
+
 
     document
       .querySelector(".section")
@@ -420,15 +570,24 @@ const modal = $("#modal");
 
 
 function openModal() {
+
   modal.hidden = false;
+
   modal.style.display = "grid";
+
   document.body.style.overflow = "hidden";
+
 }
 
+
 function closeModal() {
+
   modal.hidden = true;
+
   modal.style.display = "none";
+
   document.body.style.overflow = "";
+
 }
 
 
@@ -482,10 +641,13 @@ if (WHATSAPP_GROUP) {
   whatsappLink.addEventListener(
     "click",
     event => {
+
       event.preventDefault();
+
       alert(
         "O link do grupo do WhatsApp ainda não foi configurado."
       );
+
     }
   );
 
@@ -500,4 +662,4 @@ if (WHATSAPP_GROUP) {
 
 renderCategories();
 
-renderProducts();
+loadProducts();
