@@ -502,3 +502,6 @@ if (WHATSAPP_GROUP) {
 renderCategories();
 
 renderProducts();
+[hidden] {
+  display: none !important;
+}
