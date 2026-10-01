@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="MydazTech — ofertas e achadinhos de tecnologia.">
+  <title>MydazTech — Ofertas de Tecnologia</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="topbar">🔥 Achadinhos de tecnologia em um só lugar</div>
+
+  <header class="header">
+    <a class="brand" href="#">
+      <span class="brand-mark">M</span>
+      <span><b>MYDAZ<span>TECH</span></b><small>OFERTAS & TECNOLOGIA</small></span>
+    </a>
+    <button class="whatsapp-btn" id="openWhatsApp">💬 Grupo no WhatsApp</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">ACHADINHOS DE TECNOLOGIA</p>
+      <h1>Encontre a oferta<br><span>que você procura.</span></h1>
+      <p class="hero-copy">PCs, placas de vídeo, monitores, celulares, periféricos e muito mais — reunidos para você encontrar opções sem perder tempo.</p>
+
+      <div class="search-box">
+        <span>⌕</span>
+        <input id="search" type="search" placeholder="Buscar produto, ex: RTX 4060, monitor 144Hz..." autocomplete="off">
+        <button id="clearSearch" aria-label="Limpar busca">×</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div><p class="eyebrow">EXPLORE</p><h2>Categorias</h2></div>
+        <button class="link-button" id="allCategories">Ver todas →</button>
+      </div>
+      <div class="categories" id="categories"></div>
+    </section>
+
+    <section class="section offers">
+      <div class="section-head">
+        <div><p class="eyebrow">SELEÇÃO MYDAZTECH</p><h2>Ofertas em destaque</h2></div>
+        <span class="count" id="count"></span>
+      </div>
+
+      <div class="filters" id="filters">
+        <button class="filter active" data-store="Todas">Todas</button>
+        <button class="filter" data-store="Shopee">Shopee</button>
+        <button class="filter" data-store="Mercado Livre">Mercado Livre</button>
+        <button class="filter" data-store="Amazon">Amazon</button>
+      </div>
+
+      <div class="products" id="products"></div>
+      <div class="empty" id="empty" hidden>
+        <strong>Nenhuma oferta encontrada</strong>
+        <p>Tente outro termo ou escolha outra categoria.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <b>MYDAZ<span>TECH</span></b>
+    <p>Ofertas de tecnologia, reunidas para você encontrar o que procura.</p>
+    <small>© 2026 MydazTech. Preços e condições podem mudar nas lojas.</small>
+  </footer>
+
+  <div class="modal-bg" id="modal" hidden>
+    <div class="modal">
+      <button class="close" id="closeModal">×</button>
+      <div class="modal-icon">💬</div>
+      <p class="eyebrow">COMUNIDADE MYDAZTECH</p>
+      <h2>Receba as ofertas no WhatsApp.</h2>
+      <p>Entre no grupo para acompanhar achadinhos e promoções de tecnologia.</p>
+      <a class="cta" id="whatsappLink" href="#" target="_blank" rel="noopener">Entrar no grupo →</a>
+      <button class="secondary" id="continueBtn">Continuar navegando</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
