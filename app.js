@@ -420,16 +420,15 @@ const modal = $("#modal");
 
 
 function openModal() {
-
   modal.hidden = false;
-
+  modal.style.display = "grid";
+  document.body.style.overflow = "hidden";
 }
 
-
 function closeModal() {
-
   modal.hidden = true;
-
+  modal.style.display = "none";
+  document.body.style.overflow = "";
 }
 
 
