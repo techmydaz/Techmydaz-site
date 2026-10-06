@@ -1,12 +1,9 @@
 const categories = [
-  ["pc", "🖥️", "PC Gamer"],
-  ["pecas", "🧩", "Peças de PC"],
-  ["gpu", "🎮", "Placas de vídeo"],
-  ["monitor", "📺", "Monitores"],
-  ["celular", "📱", "Celulares"],
-  ["periferico", "⌨️", "Periféricos"],
-  ["audio", "🎧", "Áudio"],
-  ["eletronicos", "⚡", "Eletrônicos"]
+  ["pc", "🖥️", "PC Gamer", ["pc gamer", "pc"]],
+  ["hardware", "🧩", "Hardware", ["hardware", "pecas de pc", "pecas para pc", "placas de video", "placa de video"]],
+  ["monitor", "📺", "Monitores", ["monitores", "monitor", "munitores"]],
+  ["periferico", "⌨️", "Periféricos e Áudio", ["perifericos e audio", "perifericos", "periferico", "audio"]],
+  ["celular", "📱", "Celulares e Eletrônicos", ["celulares e eletronicos", "celulares", "celular", "eletronicos"]]
 ];
 
 
@@ -76,8 +73,9 @@ function categoryInfo(categoryName) {
   const name = normalize(categoryName);
 
   const found = categories.find(
-    ([key, icon, label]) =>
-      normalize(label) === name
+    ([key, icon, label, aliases]) =>
+      normalize(label) === name ||
+      aliases.some(alias => normalize(alias) === name)
   );
 
   if (found) {
@@ -89,9 +87,9 @@ function categoryInfo(categoryName) {
   }
 
   return {
-    cat: "eletronicos",
-    icon: "⚡",
-    catName: categoryName || "Eletrônicos"
+    cat: "celular",
+    icon: "📱",
+    catName: categoryName || "Celulares e Eletrônicos"
   };
 }
 
