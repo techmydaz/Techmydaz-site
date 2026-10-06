@@ -1,51 +1,29 @@
 const categories = [
-  ["pc", "🖥️", "PC Gamer", ["pc gamer", "pc"]],
-  ["hardware", "🧩", "Hardware", ["hardware", "pecas de pc", "pecas para pc", "placas de video", "placa de video"]],
-  ["monitor", "📺", "Monitores", ["monitores", "monitor", "munitores"]],
-  ["periferico", "⌨️", "Periféricos e Áudio", ["perifericos e audio", "perifericos", "periferico", "audio"]],
-  ["celular", "📱", "Celulares e Eletrônicos", ["celulares e eletronicos", "celulares", "celular", "eletronicos"]]
+  ["pc", "🖥️", "PC Gamer"],
+  ["hardware", "🧩", "Hardware"],
+  ["monitor", "📺", "Monitores"],
+  ["periferico", "⌨️", "Periféricos e Áudio"],
+  ["celular", "📱", "Celulares e Eletrônicos"]
 ];
 
 
-/*
-  =====================================================
-  CONFIGURAÇÃO DO WHATSAPP
-  =====================================================
-*/
+/* CONFIGURAÇÃO DO WHATSAPP */
 
-const WHATSAPP_GROUP = 
-  "https://chat.whatsapp.com/KrCnqmvJbnLBexgdrF03j9?s=cl&p=a&mlu=4&ilr=4";
+const WHATSAPP_GROUP = "";
 
 
-/*
-  =====================================================
-  GOOGLE SHEETS
-  =====================================================
-
-  Essa é a planilha publicada em CSV.
-
-  Quando você alterar os produtos/preços na planilha,
-  o site buscará os dados daqui.
-*/
+/* GOOGLE SHEETS (planilha publicada em CSV) */
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQzzZ4WRBTBBG5Ao1hCdAzKACD6o51WpM4NjOJPciID9Z0fpFwU10Ynj5mVizSOoQ/pub?output=csv";
 
 
-/*
-  =====================================================
-  PRODUTOS
-  =====================================================
-*/
+/* PRODUTOS */
 
 let products = [];
 
 
-/*
-  =====================================================
-  ELEMENTOS
-  =====================================================
-*/
+/* ELEMENTOS */
 
 const $ = selector => document.querySelector(selector);
 
@@ -53,11 +31,7 @@ let category = "todos";
 let store = "Todas";
 
 
-/*
-  =====================================================
-  FUNÇÕES AUXILIARES
-  =====================================================
-*/
+/* FUNÇÕES AUXILIARES */
 
 function normalize(value) {
   return String(value || "")
@@ -73,9 +47,8 @@ function categoryInfo(categoryName) {
   const name = normalize(categoryName);
 
   const found = categories.find(
-    ([key, icon, label, aliases]) =>
-      normalize(label) === name ||
-      aliases.some(alias => normalize(alias) === name)
+    ([key, icon, label]) =>
+      normalize(label) === name
   );
 
   if (found) {
@@ -88,7 +61,7 @@ function categoryInfo(categoryName) {
 
   return {
     cat: "celular",
-    icon: "📱",
+    icon: "⚡",
     catName: categoryName || "Celulares e Eletrônicos"
   };
 }
@@ -124,11 +97,7 @@ function formatPrice(value) {
 }
 
 
-/*
-  =====================================================
-  LEITOR DE CSV
-  =====================================================
-*/
+/* LEITOR DE CSV */
 
 function parseCSV(text) {
 
@@ -189,11 +158,7 @@ function parseCSV(text) {
 }
 
 
-/*
-  =====================================================
-  CARREGAR PRODUTOS DA PLANILHA
-  =====================================================
-*/
+/* CARREGAR PRODUTOS DA PLANILHA */
 
 async function loadProducts() {
 
@@ -306,11 +271,7 @@ async function loadProducts() {
 }
 
 
-/*
-  =====================================================
-  CATEGORIAS
-  =====================================================
-*/
+/* CATEGORIAS */
 
 function renderCategories() {
 
@@ -327,23 +288,19 @@ function renderCategories() {
 }
 
 
-/*
-  =====================================================
-  PRODUTOS
-  =====================================================
-*/
+/* PRODUTOS */
 
 function renderProducts() {
 
-  const q = $("#search").value.trim().toLowerCase();
+  const words = normalize($("#search").value)
+    .split(/\s+/)
+    .filter(Boolean);
 
   const list = products.filter(product => {
 
-    const text = `
-      ${product.name}
-      ${product.catName}
-      ${product.store}
-    `.toLowerCase();
+    const text = normalize(
+      `${product.name} ${product.catName} ${product.store}`
+    );
 
 
     const categoryMatch =
@@ -357,8 +314,7 @@ function renderProducts() {
 
 
     const searchMatch =
-      !q ||
-      text.includes(q);
+      words.every(word => text.includes(word));
 
 
     return categoryMatch &&
@@ -387,7 +343,13 @@ function renderProducts() {
             ${product.store}
           </span>
 
-          <img src="${product.image || ''}" alt="${product.name}" loading="lazy">
+          <img
+            src="${product.image || ''}"
+            alt="${product.name}"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<span style=&quot;font-size:48px&quot;>${product.icon}</span>')"
+          >
 
         </div>
 
@@ -432,11 +394,7 @@ function renderProducts() {
 }
 
 
-/*
-  =====================================================
-  CLIQUE NAS CATEGORIAS
-  =====================================================
-*/
+/* CLIQUE NAS CATEGORIAS */
 
 $("#categories").addEventListener("click", event => {
 
@@ -470,11 +428,7 @@ $("#categories").addEventListener("click", event => {
 });
 
 
-/*
-  =====================================================
-  FILTROS DAS LOJAS
-  =====================================================
-*/
+/* FILTROS DAS LOJAS */
 
 $("#filters").addEventListener("click", event => {
 
@@ -501,15 +455,60 @@ $("#filters").addEventListener("click", event => {
 });
 
 
-/*
-  =====================================================
-  BUSCA
-  =====================================================
-*/
+/* BUSCA */
 
+function goToOffers() {
+
+  document
+    .querySelector(".offers")
+    .scrollIntoView({
+      behavior: "smooth"
+    });
+
+}
+
+
+/* Teclado do celular mostra o botão "Buscar" */
+$("#search").setAttribute("enterkeyhint", "search");
+
+
+/* Filtra enquanto digita (em todas as categorias) */
 $("#search").addEventListener(
   "input",
-  renderProducts
+  () => {
+
+    if ($("#search").value.trim() !== "") {
+
+      category = "todos";
+
+      document
+        .querySelectorAll(".category")
+        .forEach(item => {
+          item.classList.remove("active");
+        });
+
+    }
+
+    renderProducts();
+
+  }
+);
+
+
+/* Ao apertar Enter / Buscar: fecha o teclado e vai até as ofertas */
+$("#search").addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key !== "Enter") return;
+
+    event.preventDefault();
+
+    $("#search").blur();
+
+    goToOffers();
+
+  }
 );
 
 
@@ -527,11 +526,7 @@ $("#clearSearch").addEventListener(
 );
 
 
-/*
-  =====================================================
-  VER TODAS AS CATEGORIAS
-  =====================================================
-*/
+/* VER TODAS AS CATEGORIAS */
 
 $("#allCategories").addEventListener(
   "click",
@@ -559,11 +554,7 @@ $("#allCategories").addEventListener(
 );
 
 
-/*
-  =====================================================
-  MODAL DO WHATSAPP
-  =====================================================
-*/
+/* MODAL DO WHATSAPP */
 
 const modal = $("#modal");
 
@@ -620,11 +611,7 @@ modal.addEventListener(
 );
 
 
-/*
-  =====================================================
-  LINK DO WHATSAPP
-  =====================================================
-*/
+/* LINK DO WHATSAPP */
 
 const whatsappLink = $("#whatsappLink");
 
@@ -653,11 +640,7 @@ if (WHATSAPP_GROUP) {
 }
 
 
-/*
-  =====================================================
-  INICIALIZAÇÃO
-  =====================================================
-*/
+/* INICIALIZAÇÃO */
 
 renderCategories();
 
