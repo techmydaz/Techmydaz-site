@@ -343,6 +343,8 @@ h1 span {
 /* Card */
 
 .product {
+  display: flex;
+  flex-direction: column;       /* foto em cima, informações embaixo */
   overflow: hidden;
   border: 1px solid var(--line);
   background: var(--card);
@@ -406,6 +408,9 @@ h1 span {
 /* ---- Informações do produto ---- */
 
 .info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;                      /* ocupa o resto do card */
   padding: 13px;
 }
 
@@ -418,27 +423,33 @@ h1 span {
   margin: 6px 0 9px;
   font-size: 14px;
   line-height: 1.35;
-  min-height: 38px;
+  min-height: calc(1.35em * 3); /* reserva sempre 3 linhas */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;        /* corta em 3 linhas com "..." */
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .old {
   text-decoration: line-through;
   color: #666;
   font-size: 11px;
+  min-height: 14px;             /* mantém o espaço mesmo sem preço antigo */
 }
 
 .price {
   color: var(--gold2);
   font-size: 19px;
   font-weight: 950;
-  margin-top: 2px;
+  margin: 2px 0 12px;
 }
 
 /* ---- Botão VER OFERTA ---- */
 
 .buy {
   display: block;
-  margin-top: 12px;
+  margin-top: auto;             /* empurra o botão para o fim do card */
   padding: 11px 7px;
   border-radius: 10px;
   background: #f2f2f2;
