@@ -16,7 +16,8 @@ const categories = [
   =====================================================
 */
 
-const WHATSAPP_GROUP = "";
+const WHATSAPP_GROUP = 
+  "https://chat.whatsapp.com/KrCnqmvJbnLBexgdrF03j9?s=cl&p=a&mlu=4&ilr=4";
 
 
 /*
