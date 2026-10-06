@@ -1,39 +1,616 @@
-:root{
-  --bg:#080808;--card:#111;--card2:#161616;--line:#292929;
-  --text:#f5f5f5;--muted:#9b9b9b;--gold:#d7ad4a;--gold2:#f1d071;
+/* =====================================================
+   ÍNDICE
+   =====================================================
+   1. Variáveis (cores)
+   2. Base (reset, body, botões)
+   3. Barra do topo e cabeçalho
+   4. Hero (título + busca)
+   5. Seções e categorias
+   6. Filtros de loja
+   7. Cards de produtos (foto, info, botão)
+   8. Mensagem de vazio
+   9. Rodapé
+   10. Modal do WhatsApp
+   11. Responsivo (telas maiores)
+   ===================================================== */
+
+
+/* =====================================================
+   1. VARIÁVEIS (CORES)
+   ===================================================== */
+
+:root {
+  --bg: #080808;
+  --card: #111;
+  --card2: #161616;
+  --line: #292929;
+  --text: #f5f5f5;
+  --muted: #9b9b9b;
+  --gold: #d7ad4a;
+  --gold2: #f1d071;
 }
-*{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input{font:inherit}button,a{tap-highlight-color:transparent}
-.topbar{padding:9px 14px;text-align:center;background:linear-gradient(90deg,#8b6b24,#efd16f,#8b6b24);color:#111;font-size:12px;font-weight:900}
-.header{max-width:1180px;margin:auto;padding:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #171717}
-.brand{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none}.brand-mark{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--gold);color:#111;font-size:21px;font-weight:950}
-.brand b{display:block;letter-spacing:.08em;font-size:16px}.brand b span,.footer b span{color:var(--gold)}.brand small{display:block;margin-top:2px;color:#777;font-size:8px;letter-spacing:.18em}
-.whatsapp-btn{border:1px solid #315a3d;background:#102016;color:#c8f5d2;border-radius:999px;padding:10px 13px;font-weight:850;cursor:pointer}
-main{max-width:1180px;margin:auto}
-.hero{text-align:center;padding:68px 18px 48px;background:radial-gradient(circle at 50% 10%,rgba(215,173,74,.12),transparent 38%)}
-.eyebrow{margin:0 0 8px;color:var(--gold2);font-size:10px;font-weight:900;letter-spacing:.18em}
-h1{margin:0;font-size:clamp(38px,8vw,70px);line-height:.98;letter-spacing:-.045em}h1 span{color:var(--gold)}
-.hero-copy{max-width:650px;margin:20px auto 28px;color:var(--muted);line-height:1.6}
-.search-box{max-width:760px;margin:auto;display:flex;align-items:center;gap:9px;background:#f3f3f3;color:#111;border-radius:16px;padding:5px 8px 5px 15px;box-shadow:0 16px 55px #0008}
-.search-box>span{font-size:25px}.search-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#111;padding:14px 0}.search-box button{border:0;background:transparent;color:#555;font-size:24px;cursor:pointer;width:38px;height:38px}
-.section{padding:28px 18px 48px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:18px}.section h2{margin:0;font-size:27px;letter-spacing:-.03em}.link-button{border:0;background:transparent;color:var(--gold2);font-weight:850;cursor:pointer}
-.categories{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.category{border:1px solid var(--line);background:linear-gradient(145deg,#151515,#0d0d0d);color:var(--text);border-radius:15px;padding:15px;text-align:left;cursor:pointer;transition:.2s}.category:hover,.category.active{border-color:#715820;transform:translateY(-2px)}.category .icon{display:block;font-size:22px;margin-bottom:9px}.category strong{display:block;font-size:14px}.category small{display:block;color:#777;margin-top:4px}
-.filters{display:flex;gap:8px;overflow:auto;padding-bottom:4px;margin-bottom:17px}.filter{white-space:nowrap;border:1px solid var(--line);background:#101010;color:#ccc;border-radius:999px;padding:9px 14px;cursor:pointer}.filter.active{background:var(--gold);color:#111;border-color:var(--gold);font-weight:900}
-.count{color:#777;font-size:13px}.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.product{overflow:hidden;border:1px solid var(--line);background:var(--card);border-radius:17px;transition:.2s}.product:hover{transform:translateY(-3px);border-color:#5a4820}.photo{aspect-ratio:1;display:grid;place-items:center;background:linear-gradient(145deg,#1a1a1a,#0d0d0d);font-size:54px;position:relative}.badge,.store{position:absolute;top:9px;padding:5px 8px;border-radius:7px;font-size:9px;font-weight:950}.badge{left:9px;background:var(--gold);color:#111}.store{right:9px;background:#292929;color:#ddd}
-.info{padding:13px}.cat{font-size:10px;color:#777}.info h3{margin:6px 0 9px;font-size:14px;line-height:1.35;min-height:38px}.old{text-decoration:line-through;color:#666;font-size:11px}.price{color:var(--gold2);font-size:19px;font-weight:950;margin-top:2px}.buy{display:block;margin-top:12px;padding:11px 7px;border-radius:10px;background:#f2f2f2;color:#111;text-align:center;text-decoration:none;font-size:12px;font-weight:950}.buy:hover{background:var(--gold)}
-.empty{text-align:center;padding:55px 20px;border:1px dashed var(--line);border-radius:18px}.empty strong{font-size:18px}.empty p{color:#777}
-.footer{text-align:center;padding:45px 18px 55px;border-top:1px solid #171717;color:#777}.footer b{color:#ddd;letter-spacing:.1em}.footer p{max-width:480px;margin:12px auto 18px;line-height:1.5}.footer small{font-size:10px}
-.modal-bg{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:#000c;backdrop-filter:blur(7px)}.modal{width:min(430px,100%);position:relative;padding:30px;border:1px solid #5b4720;border-radius:24px;background:linear-gradient(160deg,#181818,#0d0d0d);box-shadow:0 30px 100px #000b}.modal-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:15px;background:#102016;margin-bottom:18px}.modal h2{font-size:30px;line-height:1.05;margin:0 0 12px}.modal p:not(.eyebrow){color:#999;line-height:1.55}.close{position:absolute;right:13px;top:10px;border:0;background:transparent;color:#aaa;font-size:30px;cursor:pointer}.cta,.secondary{display:block;width:100%;padding:13px;border-radius:11px;text-align:center;font-weight:900;cursor:pointer}.cta{background:var(--gold);color:#111;text-decoration:none;margin-top:20px}.secondary{margin-top:7px;border:0;background:transparent;color:#777}
-@media(min-width:700px){.hero{padding-top:88px;padding-bottom:65px}.categories{grid-template-columns:repeat(4,1fr)}.products{grid-template-columns:repeat(4,1fr)}}
-@media(min-width:1000px){.categories{grid-template-columns:repeat(8,1fr)}}
+
+
+/* =====================================================
+   2. BASE
+   ===================================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+main {
+  max-width: 1180px;
+  margin: auto;
+}
+
+
+/* =====================================================
+   3. BARRA DO TOPO E CABEÇALHO
+   ===================================================== */
+
+.topbar {
+  padding: 9px 14px;
+  text-align: center;
+  background: linear-gradient(90deg, #8b6b24, #efd16f, #8b6b24);
+  color: #111;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.header {
+  max-width: 1180px;
+  margin: auto;
+  padding: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #171717;
+}
+
+/* Logo */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--gold);
+  color: #111;
+  font-size: 21px;
+  font-weight: 950;
+}
+
+.brand b {
+  display: block;
+  letter-spacing: .08em;
+  font-size: 16px;
+}
+
+.brand b span,
+.footer b span {
+  color: var(--gold);
+}
+
+.brand small {
+  display: block;
+  margin-top: 2px;
+  color: #777;
+  font-size: 8px;
+  letter-spacing: .18em;
+}
+
+/* Botão do WhatsApp (cabeçalho) */
+
+.whatsapp-btn {
+  border: 1px solid #315a3d;
+  background: #102016;
+  color: #c8f5d2;
+  border-radius: 999px;
+  padding: 10px 13px;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   4. HERO (TÍTULO + BUSCA)
+   ===================================================== */
+
+.hero {
+  text-align: center;
+  padding: 68px 18px 48px;
+  background: radial-gradient(circle at 50% 10%, rgba(215, 173, 74, .12), transparent 38%);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--gold2);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(38px, 8vw, 70px);
+  line-height: .98;
+  letter-spacing: -.045em;
+}
+
+h1 span {
+  color: var(--gold);
+}
+
+.hero-copy {
+  max-width: 650px;
+  margin: 20px auto 28px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Campo de busca */
+
+.search-box {
+  max-width: 760px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #f3f3f3;
+  color: #111;
+  border-radius: 16px;
+  padding: 5px 8px 5px 15px;
+  box-shadow: 0 16px 55px #0008;
+}
+
+.search-box > span {
+  font-size: 25px;
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #111;
+  padding: 14px 0;
+}
+
+.search-box button {
+  border: 0;
+  background: transparent;
+  color: #555;
+  font-size: 24px;
+  cursor: pointer;
+  width: 38px;
+  height: 38px;
+}
+
+
+/* =====================================================
+   5. SEÇÕES E CATEGORIAS
+   ===================================================== */
+
+.section {
+  padding: 28px 18px 48px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.section h2 {
+  margin: 0;
+  font-size: 27px;
+  letter-spacing: -.03em;
+}
+
+.link-button {
+  border: 0;
+  background: transparent;
+  color: var(--gold2);
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.count {
+  color: #777;
+  font-size: 13px;
+}
+
+/* Cards de categoria */
+
+.categories {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.category {
+  border: 1px solid var(--line);
+  background: linear-gradient(145deg, #151515, #0d0d0d);
+  color: var(--text);
+  border-radius: 15px;
+  padding: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.category:hover,
+.category.active {
+  border-color: #715820;
+  transform: translateY(-2px);
+}
+
+.category .icon {
+  display: block;
+  font-size: 22px;
+  margin-bottom: 9px;
+}
+
+.category strong {
+  display: block;
+  font-size: 14px;
+}
+
+.category small {
+  display: block;
+  color: #777;
+  margin-top: 4px;
+}
+
+
+/* =====================================================
+   6. FILTROS DE LOJA
+   ===================================================== */
+
+.filters {
+  display: flex;
+  gap: 8px;
+  overflow: auto;
+  padding-bottom: 4px;
+  margin-bottom: 17px;
+}
+
+.filter {
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  background: #101010;
+  color: #ccc;
+  border-radius: 999px;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.filter.active {
+  background: var(--gold);
+  color: #111;
+  border-color: var(--gold);
+  font-weight: 900;
+}
+
+
+/* =====================================================
+   7. CARDS DE PRODUTOS
+   ===================================================== */
+
+/* Grade (2 colunas no celular) */
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Card */
+
+.product {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 17px;
+  transition: .2s;
+}
+
+.product:hover {
+  transform: translateY(-3px);
+  border-color: #5a4820;
+}
+
+/* ---- Foto (caixa quadrada, fundo branco, imagem centralizada) ---- */
+
+.photo {
+  position: relative;
+  aspect-ratio: 1 / 1;          /* todas as fotos com o mesmo tamanho */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;             /* fundo branco, igual aos marketplaces */
+  font-size: 54px;              /* tamanho do emoji reserva */
+}
+
+.photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;          /* mostra o produto inteiro, sem cortar */
+  padding: 14px;                /* respiro nas bordas */
+  display: block;
+  font-size: 12px;              /* evita texto gigante se a imagem falhar */
+  color: #666;
+}
+
+/* Etiquetas sobre a foto (OFERTA / loja) */
+
+.badge,
+.store {
+  position: absolute;
+  top: 9px;
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: 9px;
+  font-weight: 950;
+  z-index: 1;
+}
+
+.badge {
+  left: 9px;
+  background: var(--gold);
+  color: #111;
+}
+
+.store {
+  right: 9px;
+  background: #292929;
+  color: #ddd;
+}
+
+/* ---- Informações do produto ---- */
+
+.info {
+  padding: 13px;
+}
+
+.cat {
+  font-size: 10px;
+  color: #777;
+}
+
+.info h3 {
+  margin: 6px 0 9px;
+  font-size: 14px;
+  line-height: 1.35;
+  min-height: 38px;
+}
+
+.old {
+  text-decoration: line-through;
+  color: #666;
+  font-size: 11px;
+}
+
+.price {
+  color: var(--gold2);
+  font-size: 19px;
+  font-weight: 950;
+  margin-top: 2px;
+}
+
+/* ---- Botão VER OFERTA ---- */
+
+.buy {
+  display: block;
+  margin-top: 12px;
+  padding: 11px 7px;
+  border-radius: 10px;
+  background: #f2f2f2;
+  color: #111;
+  text-align: center;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 950;
+}
+
+.buy:hover {
+  background: var(--gold);
+}
+
+
+/* =====================================================
+   8. MENSAGEM DE VAZIO
+   ===================================================== */
+
+.empty {
+  text-align: center;
+  padding: 55px 20px;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+}
+
+.empty strong {
+  font-size: 18px;
+}
+
+.empty p {
+  color: #777;
+}
+
+
+/* =====================================================
+   9. RODAPÉ
+   ===================================================== */
+
+.footer {
+  text-align: center;
+  padding: 45px 18px 55px;
+  border-top: 1px solid #171717;
+  color: #777;
+}
+
+.footer b {
+  color: #ddd;
+  letter-spacing: .1em;
+}
+
+.footer p {
+  max-width: 480px;
+  margin: 12px auto 18px;
+  line-height: 1.5;
+}
+
+.footer small {
+  font-size: 10px;
+}
+
+
+/* =====================================================
+   10. MODAL DO WHATSAPP
+   ===================================================== */
+
 #modal[hidden] {
   display: none !important;
 }
-.photo img {
-  width: 100%;
-  height: 220px;
-  object-fit: contain;
+
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: #000c;
+  backdrop-filter: blur(7px);
+}
+
+.modal {
+  width: min(430px, 100%);
+  position: relative;
+  padding: 30px;
+  border: 1px solid #5b4720;
+  border-radius: 24px;
+  background: linear-gradient(160deg, #181818, #0d0d0d);
+  box-shadow: 0 30px 100px #000b;
+}
+
+.modal-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #102016;
+  margin-bottom: 18px;
+}
+
+.modal h2 {
+  font-size: 30px;
+  line-height: 1.05;
+  margin: 0 0 12px;
+}
+
+.modal p:not(.eyebrow) {
+  color: #999;
+  line-height: 1.55;
+}
+
+.close {
+  position: absolute;
+  right: 13px;
+  top: 10px;
+  border: 0;
+  background: transparent;
+  color: #aaa;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.cta,
+.secondary {
   display: block;
+  width: 100%;
+  padding: 13px;
+  border-radius: 11px;
+  text-align: center;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.cta {
+  background: var(--gold);
+  color: #111;
+  text-decoration: none;
+  margin-top: 20px;
+}
+
+.secondary {
+  margin-top: 7px;
+  border: 0;
+  background: transparent;
+  color: #777;
+}
+
+
+/* =====================================================
+   11. RESPONSIVO (TELAS MAIORES)
+   ===================================================== */
+
+/* Tablet */
+@media (min-width: 700px) {
+  .hero {
+    padding-top: 88px;
+    padding-bottom: 65px;
+  }
+
+  .categories {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .products {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Computador */
+@media (min-width: 1000px) {
+  .categories {
+    grid-template-columns: repeat(8, 1fr);
+  }
 }
