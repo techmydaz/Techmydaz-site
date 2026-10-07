@@ -604,7 +604,10 @@ function markPopupSeen() {
 
 function showPopupAutomatically() {
 
-  if (popupAlreadySeen()) return;
+  /* Para testar: abra o site com ?popup no final do endereço */
+  const forced = new URLSearchParams(location.search).has("popup");
+
+  if (!forced && popupAlreadySeen()) return;
 
   setTimeout(() => {
 
