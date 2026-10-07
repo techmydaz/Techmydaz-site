@@ -559,11 +559,68 @@ $("#allCategories").addEventListener(
 const modal = $("#modal");
 
 
+/*
+  Aparece sozinha na primeira visita (depois de alguns segundos)
+  e só volta a aparecer depois de alguns dias.
+*/
+
+const POPUP_DELAY_SECONDS = 5;   // quanto tempo depois de entrar no site
+const POPUP_REPEAT_DAYS = 7;     // de quantos em quantos dias pode voltar a aparecer
+const POPUP_KEY = "mydaztech_whatsapp_popup";
+
+
+function popupAlreadySeen() {
+
+  try {
+
+    const last = Number(localStorage.getItem(POPUP_KEY));
+
+    if (!last) return false;
+
+    const days = (Date.now() - last) / (1000 * 60 * 60 * 24);
+
+    return days < POPUP_REPEAT_DAYS;
+
+  } catch (error) {
+
+    return false;
+
+  }
+
+}
+
+
+function markPopupSeen() {
+
+  try {
+    localStorage.setItem(POPUP_KEY, String(Date.now()));
+  } catch (error) {
+    /* navegador bloqueou o armazenamento: sem problema */
+  }
+
+}
+
+
+function showPopupAutomatically() {
+
+  if (popupAlreadySeen()) return;
+
+  setTimeout(() => {
+
+    const typing = document.activeElement === $("#search");
+
+    if (modal.hidden && !typing) {
+      openModal();
+    }
+
+  }, POPUP_DELAY_SECONDS * 1000);
+
+}
+
+
 function openModal() {
 
   modal.hidden = false;
-
-  modal.style.display = "grid";
 
   document.body.style.overflow = "hidden";
 
@@ -574,9 +631,9 @@ function closeModal() {
 
   modal.hidden = true;
 
-  modal.style.display = "none";
-
   document.body.style.overflow = "";
+
+  markPopupSeen();
 
 }
 
@@ -604,6 +661,19 @@ modal.addEventListener(
   event => {
 
     if (event.target === modal) {
+      closeModal();
+    }
+
+  }
+);
+
+
+/* Tecla ESC também fecha */
+document.addEventListener(
+  "keydown",
+  event => {
+
+    if (event.key === "Escape" && !modal.hidden) {
       closeModal();
     }
 
@@ -645,3 +715,5 @@ if (WHATSAPP_GROUP) {
 renderCategories();
 
 loadProducts();
+
+showPopupAutomatically();
