@@ -9,7 +9,8 @@ const categories = [
 
 /* CONFIGURAÇÃO DO WHATSAPP */
 
-const WHATSAPP_GROUP = "";
+const WHATSAPP_GROUP = 
+  "https://chat.whatsapp.com/KrCnqmvJbnLBexgdrF03j9";
 
 
 /* GOOGLE SHEETS (planilha publicada em CSV) */
