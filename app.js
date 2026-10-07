@@ -565,7 +565,7 @@ const modal = $("#modal");
   e só volta a aparecer depois de alguns dias.
 */
 
-const POPUP_DELAY_SECONDS = 5;   // quanto tempo depois de entrar no site
+const POPUP_DELAY_SECONDS = 1,5;   // quanto tempo depois de entrar no site
 const POPUP_REPEAT_DAYS = 7;     // de quantos em quantos dias pode voltar a aparecer
 const POPUP_KEY = "mydaztech_whatsapp_popup";
 
