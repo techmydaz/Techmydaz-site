@@ -1,9 +1,9 @@
 const categories = [
-  ["pc", "PC Gamer"],
-  ["hardware", , "Hardware"],
-  ["monitor", , "Monitores"],
-  ["periferico", "Periféricos e Áudio"],
-  ["celular", "Celulares e Eletrônicos"]
+  ["pc", "🖥️", "PC Gamer"],
+  ["hardware", "🧩", "Hardware"],
+  ["monitor", "📺", "Monitores"],
+  ["periferico", "⌨️", "Periféricos e Áudio"],
+  ["celular", "📱", "Celulares e Eletrônicos"]
 ];
 
 
