@@ -249,7 +249,7 @@ h1 span {
   font-size: 13px;
 }
 
-/* Cards de categoria */
+/* Cards de categoria (compactos: ícone + nome) */
 
 .categories {
   display: grid;
@@ -264,33 +264,48 @@ h1 span {
 
 .category {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
   border: 1px solid var(--line);
-  background: linear-gradient(145deg, #161616, #0e0e0e);
+  background: #111;
   color: var(--text);
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 10px 14px;
   text-align: left;
   cursor: pointer;
   transition: .2s;
 }
 
-.category:hover,
-.category.active {
-  border-color: #715820;
-  transform: translateY(-2px);
+.category:hover {
+  border-color: #5a4820;
 }
 
-/* Ícone dentro de um hexágono dourado */
+.category.active {
+  border-color: var(--gold);
+  background: #17140c;
+}
+
+/* Setinha discreta no canto direito */
+
+.category::after {
+  content: "›";
+  margin-left: auto;
+  color: var(--gold);
+  opacity: .6;
+  font-size: 20px;
+  line-height: 1;
+}
+
+/* Ícone pequeno dentro de um hexágono dourado fino */
 
 .category .icon {
   position: relative;
-  width: 46px;
-  height: 52px;
+  flex: none;
+  width: 36px;
+  height: 40px;
   display: grid;
   place-items: center;
-  margin-bottom: 14px;
   color: var(--gold);
 }
 
@@ -304,23 +319,20 @@ h1 span {
 .category .icon::before {
   inset: 0;
   background: var(--gold);          /* borda do hexágono */
+  opacity: .85;
 }
 
 .category .icon::after {
-  inset: 1.5px;
-  background: #141414;              /* miolo do hexágono */
+  inset: 1px;
+  background: #111;                 /* miolo do hexágono */
   transition: .2s;
 }
 
 .category .icon svg {
   position: relative;
   z-index: 1;
-  width: 22px;
-  height: 22px;
-}
-
-.category:hover .icon::after {
-  background: #1d180b;
+  width: 18px;
+  height: 18px;
 }
 
 .category.active .icon {
@@ -333,16 +345,8 @@ h1 span {
 
 .category strong {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.25;
-}
-
-.category small {
-  display: block;
-  color: var(--gold2);
-  opacity: .75;
-  margin-top: 6px;
-  font-size: 12px;
 }
 
 
@@ -686,7 +690,7 @@ h1 span {
   }
 
   .categories {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .category:last-child:nth-child(odd) {
@@ -698,4 +702,9 @@ h1 span {
   }
 }
 
-/* Computador: as categorias já ficam em 5 colunas desde o tablet */
+/* Computador */
+@media (min-width: 1000px) {
+  .categories {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
