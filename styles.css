@@ -257,12 +257,20 @@ h1 span {
   gap: 10px;
 }
 
+/* No celular, o último card (5º) ocupa a linha toda para não ficar sozinho */
+.category:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .category {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   border: 1px solid var(--line);
-  background: linear-gradient(145deg, #151515, #0d0d0d);
+  background: linear-gradient(145deg, #161616, #0e0e0e);
   color: var(--text);
-  border-radius: 15px;
-  padding: 15px;
+  border-radius: 16px;
+  padding: 16px;
   text-align: left;
   cursor: pointer;
   transition: .2s;
@@ -274,21 +282,67 @@ h1 span {
   transform: translateY(-2px);
 }
 
+/* Ícone dentro de um hexágono dourado */
+
 .category .icon {
-  display: block;
-  font-size: 22px;
-  margin-bottom: 9px;
+  position: relative;
+  width: 46px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+  color: var(--gold);
+}
+
+.category .icon::before,
+.category .icon::after {
+  content: "";
+  position: absolute;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+.category .icon::before {
+  inset: 0;
+  background: var(--gold);          /* borda do hexágono */
+}
+
+.category .icon::after {
+  inset: 1.5px;
+  background: #141414;              /* miolo do hexágono */
+  transition: .2s;
+}
+
+.category .icon svg {
+  position: relative;
+  z-index: 1;
+  width: 22px;
+  height: 22px;
+}
+
+.category:hover .icon::after {
+  background: #1d180b;
+}
+
+.category.active .icon {
+  color: #111;
+}
+
+.category.active .icon::after {
+  background: var(--gold);          /* hexágono preenchido quando selecionada */
 }
 
 .category strong {
   display: block;
   font-size: 14px;
+  line-height: 1.25;
 }
 
 .category small {
   display: block;
-  color: #777;
-  margin-top: 4px;
+  color: var(--gold2);
+  opacity: .75;
+  margin-top: 6px;
+  font-size: 12px;
 }
 
 
@@ -372,6 +426,20 @@ h1 span {
   display: block;
   font-size: 12px;              /* evita texto gigante se a imagem falhar */
   color: #666;
+}
+
+/* Imagem que não carregou: mostra o nome da marca no lugar */
+
+.photo.no-image img {
+  display: none;
+}
+
+.photo.no-image::after {
+  content: "MYDAZ TECH";
+  color: #c4c4c4;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .25em;
 }
 
 /* Etiquetas sobre a foto (OFERTA / loja) */
@@ -535,6 +603,8 @@ h1 span {
 
 .modal {
   width: min(430px, 100%);
+  max-height: 90vh;             /* não passa da tela em celulares pequenos */
+  overflow-y: auto;
   position: relative;
   padding: 30px;
   border: 1px solid #5b4720;
@@ -566,8 +636,11 @@ h1 span {
 
 .close {
   position: absolute;
-  right: 13px;
-  top: 10px;
+  right: 6px;
+  top: 4px;
+  width: 44px;                  /* área de toque maior no celular */
+  height: 44px;
+  z-index: 2;
   border: 0;
   background: transparent;
   color: #aaa;
@@ -613,7 +686,11 @@ h1 span {
   }
 
   .categories {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .category:last-child:nth-child(odd) {
+    grid-column: auto;
   }
 
   .products {
@@ -621,9 +698,4 @@ h1 span {
   }
 }
 
-/* Computador */
-@media (min-width: 1000px) {
-  .categories {
-    grid-template-columns: repeat(8, 1fr);
-  }
-}
+/* Computador: as categorias já ficam em 5 colunas desde o tablet */
