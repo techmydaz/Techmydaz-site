@@ -285,7 +285,8 @@ async function loadProducts() {
       .filter(product =>
         product.name &&
         product.active
-      );
+      )
+      .reverse();   /* os últimos da planilha (mais novos) aparecem primeiro */
 
 
     renderProducts();
