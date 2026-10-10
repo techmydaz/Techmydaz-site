@@ -1,9 +1,47 @@
+/* ÍCONES DAS CATEGORIAS (linhas finas, herdam a cor dourada do CSS) */
+
+const svg = content =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${content}</svg>`;
+
+const ICONS = {
+
+  pc: svg(`
+    <rect x="6" y="2.5" width="12" height="19" rx="2"/>
+    <circle cx="12" cy="10" r="3"/>
+    <path d="M9.5 17h5"/>
+  `),
+
+  hardware: svg(`
+    <rect x="7" y="7" width="10" height="10" rx="1.5"/>
+    <rect x="10" y="10" width="4" height="4"/>
+    <path d="M9.5 3.5v3.5M14.5 3.5v3.5M9.5 17v3.5M14.5 17v3.5M3.5 9.5H7M3.5 14.5H7M17 9.5h3.5M17 14.5h3.5"/>
+  `),
+
+  monitor: svg(`
+    <rect x="3" y="4" width="18" height="12" rx="2"/>
+    <path d="M9 20h6M12 16v4"/>
+  `),
+
+  periferico: svg(`
+    <path d="M4 14v-2a8 8 0 0 1 16 0v2"/>
+    <rect x="3" y="14" width="4" height="6" rx="1.5"/>
+    <rect x="17" y="14" width="4" height="6" rx="1.5"/>
+  `),
+
+  celular: svg(`
+    <rect x="7" y="2.5" width="10" height="19" rx="2.5"/>
+    <path d="M11 18.5h2"/>
+  `)
+
+};
+
+
 const categories = [
-  ["pc", "🖥️", "PC Gamer"],
-  ["hardware", "🧩", "Hardware"],
-  ["monitor", "📺", "Monitores"],
-  ["periferico", "⌨️", "Periféricos e Áudio"],
-  ["celular", "📱", "Celulares e Eletrônicos"]
+  ["pc", ICONS.pc, "PC Gamer"],
+  ["hardware", ICONS.hardware, "Hardware"],
+  ["monitor", ICONS.monitor, "Monitores"],
+  ["periferico", ICONS.periferico, "Periféricos e Áudio"],
+  ["celular", ICONS.celular, "Celulares e Eletrônicos"]
 ];
 
 
@@ -62,7 +100,7 @@ function categoryInfo(categoryName) {
 
   return {
     cat: "celular",
-    icon: "⚡",
+    icon: ICONS.celular,
     catName: categoryName || "Celulares e Eletrônicos"
   };
 }
@@ -349,7 +387,7 @@ function renderProducts() {
             alt="${product.name}"
             loading="lazy"
             referrerpolicy="no-referrer"
-            onerror="this.style.display='none'; this.insertAdjacentHTML('afterend','<span style=&quot;font-size:48px&quot;>${product.icon}</span>')"
+            onerror="this.parentNode.classList.add('no-image')"
           >
 
         </div>
