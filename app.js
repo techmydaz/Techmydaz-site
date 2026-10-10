@@ -1,7 +1,7 @@
 /* ÍCONES DAS CATEGORIAS (linhas finas, herdam a cor dourada do CSS) */
 
 const svg = content =>
-  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${content}</svg>`;
+  `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${content}</svg>`;
 
 const ICONS = {
 
@@ -319,7 +319,6 @@ function renderCategories() {
       <button class="category" data-cat="${key}">
         <span class="icon">${icon}</span>
         <strong>${name}</strong>
-        <small>Ver ofertas →</small>
       </button>
     `)
     .join("");
