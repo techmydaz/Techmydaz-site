@@ -150,6 +150,19 @@ function categoryInfo(categoryName) {
 }
 
 
+/* Identifica a loja para pintar a etiqueta com a cor dela */
+function storeKey(storeName) {
+
+  const name = normalize(storeName);
+
+  if (name.includes("shopee")) return "shopee";
+  if (name.includes("mercado")) return "mercadolivre";
+  if (name.includes("amazon")) return "amazon";
+
+  return "outra";
+}
+
+
 function formatPrice(value) {
 
   if (value === null || value === undefined || value === "") {
@@ -307,6 +320,8 @@ async function loadProducts() {
 
           store: storeName,
 
+          storeKey: storeKey(storeName),
+
           price: formatPrice(price),
 
           old: formatPrice(oldPrice),
@@ -422,7 +437,7 @@ function renderProducts() {
             ${product.badge}
           </span>
 
-          <span class="store">
+          <span class="store store-${product.storeKey}">
             ${product.store}
           </span>
 
