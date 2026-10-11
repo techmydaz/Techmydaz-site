@@ -690,7 +690,7 @@ function renderProducts() {
           </div>
 
           <span class="buy">
-            ${multiple ? "COMPARAR PREÇOS →" : "VER DETALHES →"}
+            ${multiple ? "COMPARAR →" : "VER DETALHES →"}
           </span>
 
         </div>
