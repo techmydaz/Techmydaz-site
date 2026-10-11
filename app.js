@@ -31,18 +31,58 @@ const ICONS = {
   celular: svg(`
     <rect x="7" y="2.5" width="10" height="19" rx="2.5"/>
     <path d="M11 18.5h2"/>
+  `),
+
+  games: svg(`
+    <path d="M7 7.5h10a4.5 4.5 0 0 1 4.4 3.6l.8 4a2.6 2.6 0 0 1-4.4 2.3L15.8 15H8.2l-2 1.9a2.6 2.6 0 0 1-4.4-2.3l.8-4A4.5 4.5 0 0 1 7 7.5z"/>
+    <path d="M8.5 10v3.5M6.8 11.75h3.4"/>
+    <circle cx="15.3" cy="11" r=".7"/>
+    <circle cx="17.3" cy="12.8" r=".7"/>
+  `),
+
+  setup: svg(`
+    <rect x="7" y="2.5" width="10" height="9.5" rx="2.2"/>
+    <rect x="5" y="13" width="14" height="3" rx="1.5"/>
+    <path d="M12 16v3.5M8 21h8"/>
   `)
 
 };
 
 
 const categories = [
-  ["pc", ICONS.pc, "PC Gamer"],
+  ["pc", ICONS.pc, "Computadores"],
   ["hardware", ICONS.hardware, "Hardware"],
   ["monitor", ICONS.monitor, "Monitores"],
   ["periferico", ICONS.periferico, "Periféricos e Áudio"],
-  ["celular", ICONS.celular, "Celulares e Eletrônicos"]
+  ["games", ICONS.games, "Games"],
+  ["celular", ICONS.celular, "Celulares e Eletrônicos"],
+  ["setup", ICONS.setup, "Setup e Gadgets"]
 ];
+
+
+/*
+  NOMES ANTIGOS / ALTERNATIVOS
+  Se na planilha estiver escrito um destes nomes, o produto vai
+  para a categoria indicada (assim você não precisa mudar tudo).
+*/
+
+const categoryAliases = {
+  "pc gamer": "computadores",
+  "pcs e notebooks": "computadores",
+  "computador": "computadores",
+  "notebooks": "computadores",
+  "game": "games",
+  "videogames": "games",
+  "video games": "games",
+  "jogos": "games",
+  "consoles": "games",
+  "games e consoles": "games",
+  "setup": "setup e gadgets",
+  "setup e casa": "setup e gadgets",
+  "gadgets": "setup e gadgets",
+  "cadeiras": "setup e gadgets",
+  "decoracao": "setup e gadgets"
+};
 
 
 /* CONFIGURAÇÃO DO WHATSAPP */
@@ -83,7 +123,11 @@ function normalize(value) {
 
 function categoryInfo(categoryName) {
 
-  const name = normalize(categoryName);
+  let name = normalize(categoryName);
+
+  if (categoryAliases[name]) {
+    name = categoryAliases[name];
+  }
 
   const found = categories.find(
     ([key, icon, label]) =>
