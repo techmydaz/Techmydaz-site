@@ -6,10 +6,10 @@
   <meta name="description" content="MydazTech — ofertas e achadinhos de tecnologia.">
   <title>MydazTech — Ofertas de Tecnologia</title>
   <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body>
-  <div class="topbar">O Melhor da Tecnologia Pelo Melhor Preço</div>
+  <div class="topbar">Compare preços e compre direto nas lojas</div>
 
   <header class="header">
     <a class="brand" href="#">
@@ -21,18 +21,35 @@
 
   <main>
     <section class="hero">
-      <p class="eyebrow">ACHADINHOS DE TECNOLOGIA</p>
-      <h1>Encontre a oferta<br><span>que você procura.</span></h1>
-      <p class="hero-copy">PCs, placas de vídeo, monitores, celulares, periféricos e muito mais — reunidos para você encontrar opções sem perder tempo.</p>
+      <p class="eyebrow">COMPARADOR DE PREÇOS DE TECNOLOGIA</p>
+      <h1>Compare preços e <span>economize em tecnologia.</span></h1>
+      <p class="hero-copy">Amazon, Shopee e Mercado Livre lado a lado. Veja onde está mais barato e compre direto na loja.</p>
 
       <div class="search-box">
         <span>⌕</span>
-        <input id="search" type="search" placeholder="Buscar produto, ex: RTX 4060, monitor 144Hz..." autocomplete="off">
+        <input id="search" type="search" placeholder="Buscar: RTX 4060, monitor" autocomplete="off">
         <button id="clearSearch" aria-label="Limpar busca">×</button>
+      </div>
+
+      <div class="trust">
+        <div class="trust-stores">
+          <span class="trust-label">Comparamos</span>
+          <span class="trust-chip"><i class="dot store-amazon"></i>Amazon</span>
+          <span class="trust-chip"><i class="dot store-shopee"></i>Shopee</span>
+          <span class="trust-chip"><i class="dot store-mercadolivre"></i>Mercado Livre</span>
+        </div>
+        <p class="trust-meta" id="trustMeta"></p>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section highlights" id="highlights" hidden>
+      <div class="section-head">
+        <div><p class="eyebrow">MAIORES DESCONTOS</p><h2>Economize agora</h2></div>
+      </div>
+      <div class="hl-row" id="hlRow"></div>
+    </section>
+
+    <section class="section" id="categoriesSection">
       <div class="section-head">
         <div><p class="eyebrow">EXPLORE</p><h2>Categorias</h2></div>
         <button class="link-button" id="allCategories">Ver todas →</button>
@@ -79,6 +96,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=6"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
