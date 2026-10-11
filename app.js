@@ -358,9 +358,18 @@ async function loadProducts() {
 
         const offers = [];
 
+        const loosePrices = [];   /* preços sem link (coluna de outra loja) */
+        const missingPrice = [];  /* lojas com link e sem preço */
+
         storeColumns.forEach(column => {
 
           const url = String(row[column.linkIndex] || "").trim();
+
+          const priceValue = parsePrice(row[column.priceIndex]);
+
+          if (priceValue !== null && !url) loosePrices.push(priceValue);
+
+          if (url && priceValue === null) missingPrice.push(normalize(column.label));
 
           if (!url) return;
 
@@ -397,6 +406,29 @@ async function loadProducts() {
         }
 
 
+        /*
+          Preço digitado na coluna errada: se a linha tem um único preço
+          sem link e a coluna "Loja" aponta para uma loja que tem link mas
+          ficou sem preço, o preço é passado para essa loja.
+        */
+
+        if (loosePrices.length === 1 && missingPrice.length > 0) {
+
+          const rowStore = normalize(getValue(row, "Loja"));
+
+          const target = rowStore
+            ? missingPrice.find(key => key === rowStore)
+            : (missingPrice.length === 1 ? missingPrice[0] : undefined);
+
+          const offer = offers.find(item => item.key === target);
+
+          if (offer && offer.price === null) {
+            offer.price = loosePrices[0];
+          }
+
+        }
+
+
         /* mais barata primeiro; sem preço vai para o fim */
 
         offers.sort((a, b) => {
@@ -425,7 +457,9 @@ async function loadProducts() {
 
           oldPrice: parsePrice(getValue(row, "Preço Anterior")),
 
-          updated: getValue(row, "Atualizado em"),
+          updated:
+            getValue(row, "Atualizado em") ||
+            getValue(row, "Última Atualização"),
 
           offers: offers,
 
