@@ -121,6 +121,37 @@ function normalize(value) {
 }
 
 
+/* Protege o texto que vem da planilha antes de colocar na página */
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+
+/* Só aceita links que começam com http:// ou https:// */
+function safeUrl(value) {
+  const url = String(value || "").trim();
+  return /^https?:\/\//i.test(url) ? url : "#";
+}
+
+
+/* Identifica a loja para pintar com a cor dela */
+function storeKey(storeName) {
+
+  const name = normalize(storeName);
+
+  if (name.includes("shopee")) return "shopee";
+  if (name.includes("mercado")) return "mercadolivre";
+  if (name.includes("amazon")) return "amazon";
+
+  return "outra";
+}
+
+
 function categoryInfo(categoryName) {
 
   let name = normalize(categoryName);
@@ -150,46 +181,36 @@ function categoryInfo(categoryName) {
 }
 
 
-/* Identifica a loja para pintar a etiqueta com a cor dela */
-function storeKey(storeName) {
+/* Converte "R$ 1.393,70", "1393,70" ou "1393.70" em número */
+function parsePrice(value) {
 
-  const name = normalize(storeName);
+  const text = String(value || "").trim();
 
-  if (name.includes("shopee")) return "shopee";
-  if (name.includes("mercado")) return "mercadolivre";
-  if (name.includes("amazon")) return "amazon";
+  if (!text) return null;
 
-  return "outra";
+  let t = text.replace(/[^\d.,-]/g, "");
+
+  if (!t) return null;
+
+  if (t.includes(",")) {
+    t = t.replace(/\./g, "").replace(",", ".");
+  } else if (/^\d{1,3}(\.\d{3})+$/.test(t)) {
+    t = t.replace(/\./g, "");
+  }
+
+  const number = Number(t);
+
+  return Number.isFinite(number) && number > 0 ? number : null;
 }
 
 
-function formatPrice(value) {
-
-  if (value === null || value === undefined || value === "") {
-    return "";
-  }
-
-  const text = String(value).trim();
-
-  if (text.includes("R$")) {
-    return text;
-  }
-
-  const number = Number(
-    text
-      .replace(/\./g, "")
-      .replace(",", ".")
-      .replace(/[^\d.-]/g, "")
-  );
-
-  if (Number.isNaN(number)) {
-    return text;
-  }
+function formatMoney(number) {
 
   return number.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL"
   });
+
 }
 
 
@@ -254,7 +275,15 @@ function parseCSV(text) {
 }
 
 
-/* CARREGAR PRODUTOS DA PLANILHA */
+/*
+  CARREGAR PRODUTOS DA PLANILHA
+
+  Formato novo: uma linha por produto, com um par de colunas por loja:
+  "<Loja> Preço" e "<Loja> Link"  (ex.: Shopee Preço / Shopee Link).
+  Qualquer loja nova funciona: basta criar as duas colunas.
+
+  Formato antigo (Loja / Preço Atual / Link da Oferta) continua funcionando.
+*/
 
 async function loadProducts() {
 
@@ -268,7 +297,7 @@ async function loadProducts() {
       throw new Error("Não foi possível acessar a planilha.");
     }
 
-    const csv = await response.text();
+    const csv = (await response.text()).replace(/^\uFEFF/, "");
 
     const rows = parseCSV(csv);
 
@@ -276,9 +305,9 @@ async function loadProducts() {
       throw new Error("A planilha está vazia.");
     }
 
-    const headers = rows[0].map(header =>
-      normalize(header)
-    );
+    const rawHeaders = rows[0].map(header => String(header).trim());
+
+    const headers = rawHeaders.map(header => normalize(header));
 
     const getValue = (row, columnName) => {
 
@@ -290,8 +319,33 @@ async function loadProducts() {
         return "";
       }
 
-      return row[index] || "";
+      return String(row[index] || "").trim();
     };
+
+
+    /* Descobre as lojas pelas colunas "<Loja> Preço" + "<Loja> Link" */
+
+    const storeColumns = [];
+
+    headers.forEach((header, index) => {
+
+      if (!header.endsWith(" preco")) return;
+
+      const label = rawHeaders[index]
+        .replace(/\s*pre[cç]o\s*$/i, "")
+        .trim();
+
+      const linkIndex = headers.indexOf(normalize(label) + " link");
+
+      if (!label || linkIndex === -1) return;
+
+      storeColumns.push({
+        label: label,
+        priceIndex: index,
+        linkIndex: linkIndex
+      });
+
+    });
 
 
     products = rows
@@ -299,16 +353,63 @@ async function loadProducts() {
       .map(row => {
 
         const name = getValue(row, "Produto");
-        const categoryName = getValue(row, "Categoria");
-        const storeName = getValue(row, "Loja");
-        const price = getValue(row, "Preço Atual");
-        const oldPrice = getValue(row, "Preço Anterior");
-        const badge = getValue(row, "Badge");
-        const url = getValue(row, "Link da Oferta");
-        const image = getValue(row, "Imagem");
+        const info = categoryInfo(getValue(row, "Categoria"));
         const active = getValue(row, "Ativo");
 
-        const info = categoryInfo(categoryName);
+        const offers = [];
+
+        storeColumns.forEach(column => {
+
+          const url = String(row[column.linkIndex] || "").trim();
+
+          if (!url) return;
+
+          offers.push({
+            store: column.label,
+            key: normalize(column.label),
+            color: storeKey(column.label),
+            price: parsePrice(row[column.priceIndex]),
+            url: safeUrl(url)
+          });
+
+        });
+
+
+        /* formato antigo: uma loja por linha */
+
+        const oldStore = getValue(row, "Loja");
+        const oldUrl = getValue(row, "Link da Oferta");
+
+        if (
+          oldStore &&
+          oldUrl &&
+          !offers.some(offer => offer.key === normalize(oldStore))
+        ) {
+
+          offers.push({
+            store: oldStore,
+            key: normalize(oldStore),
+            color: storeKey(oldStore),
+            price: parsePrice(getValue(row, "Preço Atual")),
+            url: safeUrl(oldUrl)
+          });
+
+        }
+
+
+        /* mais barata primeiro; sem preço vai para o fim */
+
+        offers.sort((a, b) => {
+
+          const priceA = a.price === null ? Infinity : a.price;
+          const priceB = b.price === null ? Infinity : b.price;
+
+          if (priceA === priceB) return 0;
+
+          return priceA < priceB ? -1 : 1;
+
+        });
+
 
         return {
 
@@ -318,20 +419,15 @@ async function loadProducts() {
 
           catName: info.catName,
 
-          store: storeName,
+          badge: getValue(row, "Badge") || "OFERTA",
 
-          storeKey: storeKey(storeName),
+          image: getValue(row, "Imagem"),
 
-          price: formatPrice(price),
+          oldPrice: parsePrice(getValue(row, "Preço Anterior")),
 
-          old: formatPrice(oldPrice),
+          updated: getValue(row, "Atualizado em"),
 
-          icon: info.icon,
-          image: image,
-
-          badge: badge || "OFERTA",
-
-          url: url || "#",
+          offers: offers,
 
           active:
             normalize(active) !== "nao" &&
@@ -343,10 +439,14 @@ async function loadProducts() {
       })
       .filter(product =>
         product.name &&
-        product.active
+        product.active &&
+        product.offers.length > 0
       )
-      .reverse();   /* os últimos da planilha (mais novos) aparecem primeiro */
+      .reverse()   /* os últimos da planilha (mais novos) aparecem primeiro */
+      .map((product, index) => ({ ...product, id: index }));
 
+
+    renderFilters();
 
     renderProducts();
 
@@ -386,7 +486,75 @@ function renderCategories() {
 }
 
 
-/* PRODUTOS */
+/* FILTROS DE LOJA (criados a partir das lojas que existem na planilha) */
+
+function renderFilters() {
+
+  const names = [];
+
+  products.forEach(product => {
+    product.offers.forEach(offer => {
+      if (!names.some(name => normalize(name) === offer.key)) {
+        names.push(offer.store);
+      }
+    });
+  });
+
+  const order = ["shopee", "mercado livre", "amazon"];
+
+  names.sort((a, b) => {
+
+    const posA = order.indexOf(normalize(a));
+    const posB = order.indexOf(normalize(b));
+
+    return (posA === -1 ? 99 : posA) - (posB === -1 ? 99 : posB) ||
+           a.localeCompare(b);
+
+  });
+
+  $("#filters").innerHTML =
+    `<button class="filter active" data-store="Todas">Todas</button>` +
+    names
+      .map(name => `
+        <button class="filter store-${storeKey(name)}" data-store="${escapeHtml(name)}">
+          ${escapeHtml(name)}
+        </button>
+      `)
+      .join("");
+
+  store = "Todas";
+
+}
+
+
+/* PRODUTOS (cards) */
+
+function storeTag(product) {
+
+  if (product.offers.length === 1) {
+
+    const offer = product.offers[0];
+
+    return `
+      <span class="store store-${offer.color}">
+        ${escapeHtml(offer.store)}
+      </span>
+    `;
+
+  }
+
+  const dots = product.offers
+    .map(offer => `<i class="dot store-${offer.color}"></i>`)
+    .join("");
+
+  return `
+    <span class="store store-multi">
+      ${dots}<em>${product.offers.length} lojas</em>
+    </span>
+  `;
+
+}
+
 
 function renderProducts() {
 
@@ -397,7 +565,8 @@ function renderProducts() {
   const list = products.filter(product => {
 
     const text = normalize(
-      `${product.name} ${product.catName} ${product.store}`
+      `${product.name} ${product.catName} ` +
+      product.offers.map(offer => offer.store).join(" ")
     );
 
 
@@ -408,7 +577,7 @@ function renderProducts() {
 
     const storeMatch =
       store === "Todas" ||
-      product.store === store;
+      product.offers.some(offer => offer.key === normalize(store));
 
 
     const searchMatch =
@@ -423,31 +592,39 @@ function renderProducts() {
 
 
   $("#count").textContent =
-    `${list.length} oferta${list.length === 1 ? "" : "s"}`;
+    `${list.length} produto${list.length === 1 ? "" : "s"}`;
 
 
   $("#products").innerHTML = list
-    .map(product => `
+    .map(product => {
 
-      <article class="product">
+      const best = product.offers.find(offer => offer.price !== null);
 
-        <div class="photo">
+      const showOld =
+        best && product.oldPrice && product.oldPrice > best.price;
+
+      const multiple = product.offers.length > 1;
+
+      return `
+
+      <article class="product" data-id="${product.id}" tabindex="0" role="button" aria-label="Ver preços de ${escapeHtml(product.name)}">
+
+        <div class="photo${product.image ? "" : " no-image"}">
 
           <span class="badge">
-            ${product.badge}
+            ${escapeHtml(product.badge)}
           </span>
 
-          <span class="store store-${product.storeKey}">
-            ${product.store}
-          </span>
+          ${storeTag(product)}
 
+          ${product.image ? `
           <img
-            src="${product.image || ''}"
-            alt="${product.name}"
+            src="${escapeHtml(product.image)}"
+            alt="${escapeHtml(product.name)}"
             loading="lazy"
             referrerpolicy="no-referrer"
             onerror="this.parentNode.classList.add('no-image')"
-          >
+          >` : ""}
 
         </div>
 
@@ -455,41 +632,240 @@ function renderProducts() {
         <div class="info">
 
           <span class="cat">
-            ${product.catName}
+            ${escapeHtml(product.catName)}
           </span>
 
           <h3>
-            ${product.name}
+            ${escapeHtml(product.name)}
           </h3>
 
           <div class="old">
-            ${product.old}
+            ${showOld ? formatMoney(product.oldPrice) : ""}
           </div>
 
           <div class="price">
-            ${product.price}
+            ${best ? formatMoney(best.price) : "Ver preço"}${best && multiple ? "<small>a partir de</small>" : ""}
           </div>
 
-          <a
-            class="buy"
-            href="${product.url}"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            VER OFERTA →
-          </a>
+          <span class="buy">
+            ${multiple ? "COMPARAR PREÇOS →" : "VER DETALHES →"}
+          </span>
 
         </div>
 
       </article>
 
-    `)
+      `;
+
+    })
     .join("");
 
 
   $("#empty").hidden = list.length > 0;
 
 }
+
+
+/* PÁGINA DO PRODUTO (preços em cada loja) */
+
+const productModal = document.createElement("div");
+
+productModal.className = "pm-bg";
+productModal.id = "productModal";
+productModal.hidden = true;
+
+productModal.innerHTML = `
+  <div class="pm" role="dialog" aria-modal="true">
+    <button class="pm-close" id="pmClose" aria-label="Fechar">×</button>
+    <div id="pmBody"></div>
+  </div>
+`;
+
+document.body.appendChild(productModal);
+
+
+function openProduct(id) {
+
+  const product = products.find(item => item.id === id);
+
+  if (!product) return;
+
+  const priced = product.offers.filter(offer => offer.price !== null);
+
+  const best = priced[0];
+
+  const worst = priced[priced.length - 1];
+
+  const compare = priced.length > 1;
+
+
+  let oldLine = "";
+
+  if (best && product.oldPrice && product.oldPrice > best.price) {
+
+    const percent = Math.round(
+      (1 - best.price / product.oldPrice) * 100
+    );
+
+    oldLine = `
+      <div class="pm-old">
+        De <s>${formatMoney(product.oldPrice)}</s>
+        <span class="pm-off">-${percent}%</span>
+      </div>
+    `;
+
+  }
+
+
+  let summary = "";
+
+  if (compare && worst.price > best.price) {
+
+    summary = `
+      <div class="pm-summary">
+        Economia de até <b>${formatMoney(worst.price - best.price)}</b>
+        entre as lojas
+      </div>
+    `;
+
+  }
+
+
+  const offerRows = product.offers
+    .map(offer => {
+
+      const isBest = compare && offer === best;
+
+      let note = "";
+
+      if (compare && offer.price !== null) {
+
+        note = isBest
+          ? `<span class="o-tag">MENOR PREÇO</span>`
+          : `<span class="o-diff">+ ${formatMoney(offer.price - best.price)} que o menor</span>`;
+
+      }
+
+      return `
+        <a class="offer${isBest ? " best" : ""}"
+           href="${escapeHtml(offer.url)}"
+           target="_blank"
+           rel="noopener noreferrer sponsored">
+
+          <span class="o-store">
+            <i class="dot store-${offer.color}"></i>
+            ${escapeHtml(offer.store)}
+          </span>
+
+          <span class="o-price">
+            ${offer.price !== null ? formatMoney(offer.price) : "Ver preço"}
+          </span>
+
+          ${note}
+
+          <span class="o-go">Ir para a loja →</span>
+
+        </a>
+      `;
+
+    })
+    .join("");
+
+
+  $("#pmBody").innerHTML = `
+
+    <div class="pm-photo${product.image ? "" : " no-image"}">
+      ${product.image ? `
+      <img
+        src="${escapeHtml(product.image)}"
+        alt="${escapeHtml(product.name)}"
+        referrerpolicy="no-referrer"
+        onerror="this.parentNode.classList.add('no-image')"
+      >` : ""}
+    </div>
+
+    <div class="pm-body">
+
+      <span class="pm-cat">${escapeHtml(product.catName)}</span>
+
+      <h2>${escapeHtml(product.name)}</h2>
+
+      ${oldLine}
+
+      ${summary}
+
+      <p class="pm-title">
+        ${product.offers.length > 1 ? "PREÇOS NAS LOJAS" : "DISPONÍVEL EM"}
+      </p>
+
+      <div class="offers-list">
+        ${offerRows}
+      </div>
+
+    </div>
+
+    <p class="pm-foot">
+      ${product.updated ? `Preços conferidos em ${escapeHtml(product.updated)}. ` : ""}
+      Preços e condições podem mudar nas lojas.
+    </p>
+
+  `;
+
+  productModal.hidden = false;
+
+  document.body.style.overflow = "hidden";
+
+  productModal.querySelector(".pm").scrollTop = 0;
+
+}
+
+
+function closeProduct() {
+
+  productModal.hidden = true;
+
+  document.body.style.overflow = "";
+
+}
+
+
+$("#products").addEventListener("click", event => {
+
+  const card = event.target.closest(".product");
+
+  if (!card) return;
+
+  openProduct(Number(card.dataset.id));
+
+});
+
+
+$("#products").addEventListener("keydown", event => {
+
+  if (event.key !== "Enter" && event.key !== " ") return;
+
+  const card = event.target.closest(".product");
+
+  if (!card) return;
+
+  event.preventDefault();
+
+  openProduct(Number(card.dataset.id));
+
+});
+
+
+$("#pmClose").addEventListener("click", closeProduct);
+
+
+productModal.addEventListener("click", event => {
+
+  if (event.target === productModal) {
+    closeProduct();
+  }
+
+});
+
 
 
 /* CLIQUE NAS CATEGORIAS */
@@ -710,7 +1086,7 @@ function showPopupAutomatically() {
 
     const typing = document.activeElement === $("#search");
 
-    if (modal.hidden && !typing) {
+    if (modal.hidden && productModal.hidden && !typing) {
       openModal();
     }
 
@@ -774,8 +1150,12 @@ document.addEventListener(
   "keydown",
   event => {
 
-    if (event.key === "Escape" && !modal.hidden) {
-      closeModal();
+    if (event.key === "Escape") {
+
+      if (!modal.hidden) closeModal();
+
+      if (!productModal.hidden) closeProduct();
+
     }
 
   }
