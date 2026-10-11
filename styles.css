@@ -372,6 +372,24 @@ h1 span {
   cursor: pointer;
 }
 
+/* Bolinha de cor nos filtros de loja */
+
+.filter[data-store="Shopee"]::before,
+.filter[data-store="Mercado Livre"]::before,
+.filter[data-store="Amazon"]::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--dot);
+}
+
+.filter[data-store="Shopee"]       { --dot: #ee4d2d; }
+.filter[data-store="Mercado Livre"] { --dot: #ffe600; }
+.filter[data-store="Amazon"]       { --dot: #3b9cff; }
+
 .filter.active {
   background: var(--gold);
   color: #111;
@@ -465,11 +483,30 @@ h1 span {
   color: #111;
 }
 
+/* Etiqueta da loja: fundo escuro, borda e bolinha na cor da loja */
+
 .store {
   right: 9px;
-  background: #292929;
-  color: #ddd;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #141414;
+  color: #f0f0f0;
+  border: 1px solid var(--store-color, #3a3a3a);
 }
+
+.store::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--store-color, #888);
+}
+
+.store-shopee       { --store-color: #ee4d2d; }   /* vermelho/laranja da Shopee */
+.store-mercadolivre { --store-color: #ffe600; }   /* amarelo do Mercado Livre */
+.store-amazon       { --store-color: #3b9cff; }   /* azul da Amazon */
 
 /* ---- Informações do produto ---- */
 
