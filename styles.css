@@ -247,6 +247,7 @@ h1 span {
 .count {
   color: #777;
   font-size: 13px;
+  white-space: nowrap;
 }
 
 /* Cards de categoria (compactos: ícone + nome) */
@@ -374,21 +375,15 @@ h1 span {
 
 /* Bolinha de cor nos filtros de loja */
 
-.filter[data-store="Shopee"]::before,
-.filter[data-store="Mercado Livre"]::before,
-.filter[data-store="Amazon"]::before {
+.filter[class*="store-"]::before {
   content: "";
   display: inline-block;
   width: 8px;
   height: 8px;
   margin-right: 8px;
   border-radius: 50%;
-  background: var(--dot);
+  background: var(--store-color, #888);
 }
-
-.filter[data-store="Shopee"]       { --dot: #ee4d2d; }
-.filter[data-store="Mercado Livre"] { --dot: #ffe600; }
-.filter[data-store="Amazon"]       { --dot: #3b9cff; }
 
 .filter.active {
   background: var(--gold);
@@ -422,9 +417,18 @@ h1 span {
   transition: .2s;
 }
 
+.product {
+  cursor: pointer;
+}
+
 .product:hover {
   transform: translateY(-3px);
   border-color: #5a4820;
+}
+
+.product:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
 }
 
 /* ---- Foto (caixa quadrada, fundo branco, imagem centralizada) ---- */
@@ -504,6 +508,23 @@ h1 span {
   background: var(--store-color, #888);
 }
 
+.store-multi::before {
+  display: none;
+}
+
+.store em {
+  font-style: normal;
+}
+
+.dot {
+  display: inline-block;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--store-color, #888);
+}
+
 .store-shopee       { --store-color: #ee4d2d; }   /* vermelho/laranja da Shopee */
 .store-mercadolivre { --store-color: #ffe600; }   /* amarelo do Mercado Livre */
 .store-amazon       { --store-color: #3b9cff; }   /* azul da Amazon */
@@ -549,6 +570,14 @@ h1 span {
 }
 
 /* ---- Botão VER OFERTA ---- */
+
+.price small {
+  margin-left: 6px;
+  color: #888;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .02em;
+}
 
 .buy {
   display: block;
@@ -622,6 +651,239 @@ h1 span {
   font-size: 10px;
 }
 
+
+
+/* =====================================================
+   9B. PÁGINA DO PRODUTO (abre ao tocar no card)
+   ===================================================== */
+
+.pm-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  background: #000c;
+  backdrop-filter: blur(7px);
+}
+
+.pm-bg[hidden] {
+  display: none !important;
+}
+
+.pm {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding-bottom: 22px;
+  background: linear-gradient(160deg, #181818, #0d0d0d);
+  border: 1px solid #3a2f14;
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -20px 80px #000b;
+  animation: pmUp .25s ease;
+}
+
+@keyframes pmUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.pm-close {
+  position: sticky;
+  top: 10px;
+  z-index: 3;
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 10px 10px -50px auto;
+  border: 1px solid #333;
+  border-radius: 50%;
+  background: #000a;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pm-photo {
+  aspect-ratio: 16 / 11;
+  max-height: 36vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.pm-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 18px;
+  display: block;
+  font-size: 12px;
+  color: #666;
+}
+
+.pm-photo.no-image img {
+  display: none;
+}
+
+.pm-photo.no-image::after {
+  content: "MYDAZ TECH";
+  color: #c4c4c4;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .25em;
+}
+
+.pm-body {
+  padding: 18px 18px 0;
+}
+
+.pm-cat {
+  font-size: 11px;
+  color: #777;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.pm h2 {
+  margin: 6px 0 10px;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+}
+
+.pm-old {
+  color: #777;
+  font-size: 13px;
+}
+
+.pm-off {
+  margin-left: 8px;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: var(--gold);
+  color: #111;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.pm-summary {
+  margin: 14px 0 4px;
+  padding: 10px 12px;
+  border: 1px dashed #5a4820;
+  border-radius: 12px;
+  color: var(--gold2);
+  font-size: 13px;
+}
+
+.pm-title {
+  margin: 18px 0 10px;
+  color: var(--gold2);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .18em;
+}
+
+.offers-list {
+  display: grid;
+  gap: 10px;
+}
+
+.offer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "store price"
+    "tag go";
+  gap: 4px 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #111;
+  color: var(--text);
+  text-decoration: none;
+  transition: .2s;
+}
+
+.offer:hover {
+  border-color: #5a4820;
+}
+
+.offer.best {
+  border-color: var(--gold);
+  background: #17140c;
+}
+
+.o-store {
+  grid-area: store;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.o-price {
+  grid-area: price;
+  color: var(--gold2);
+  font-size: 20px;
+  font-weight: 950;
+  text-align: right;
+}
+
+.o-tag {
+  grid-area: tag;
+  justify-self: start;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--gold);
+  color: #111;
+  font-size: 10px;
+  font-weight: 950;
+}
+
+.o-diff {
+  grid-area: tag;
+  justify-self: start;
+  color: #999;
+  font-size: 12px;
+}
+
+.o-go {
+  grid-area: go;
+  justify-self: end;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.pm-foot {
+  margin: 16px 18px 0;
+  color: #777;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+@media (min-width: 700px) {
+  .pm-bg {
+    align-items: center;
+    padding: 20px;
+  }
+
+  .pm {
+    max-height: 90vh;
+    border-bottom: 1px solid #3a2f14;
+    border-radius: 24px;
+  }
+}
 
 /* =====================================================
    10. MODAL DO WHATSAPP
