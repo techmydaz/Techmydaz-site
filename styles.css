@@ -690,7 +690,7 @@ h1 span {
   }
 
   .categories {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .category:last-child:nth-child(odd) {
@@ -705,6 +705,6 @@ h1 span {
 /* Computador */
 @media (min-width: 1000px) {
   .categories {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 }
