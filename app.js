@@ -484,6 +484,10 @@ async function loadProducts() {
 
     renderProducts();
 
+    renderHighlights();
+
+    renderTrust();
+
   } catch (error) {
 
     console.error(
@@ -677,8 +681,12 @@ function renderProducts() {
             ${showOld ? formatMoney(product.oldPrice) : ""}
           </div>
 
+          <div class="from">
+            ${best && multiple ? "a partir de" : ""}
+          </div>
+
           <div class="price">
-            ${best ? formatMoney(best.price) : "Ver preço"}${best && multiple ? "<small>a partir de</small>" : ""}
+            ${best ? formatMoney(best.price) : "Ver preço"}
           </div>
 
           <span class="buy">
@@ -696,6 +704,118 @@ function renderProducts() {
 
 
   $("#empty").hidden = list.length > 0;
+
+}
+
+
+/* FAIXA DE CONFIANÇA (quantos produtos, lojas e data) */
+
+function parseBRDate(text) {
+
+  const match = String(text || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+
+  if (!match) return null;
+
+  const year = match[3].length === 2 ? 2000 + Number(match[3]) : Number(match[3]);
+
+  const date = new Date(year, Number(match[2]) - 1, Number(match[1]));
+
+  return Number.isNaN(date.getTime()) ? null : date;
+
+}
+
+
+function renderTrust() {
+
+  const stores = new Set();
+
+  let latest = null;
+
+  products.forEach(product => {
+
+    product.offers.forEach(offer => stores.add(offer.key));
+
+    const date = parseBRDate(product.updated);
+
+    if (date && (!latest || date > latest)) latest = date;
+
+  });
+
+  const parts = [
+    `${products.length} produto${products.length === 1 ? "" : "s"}`,
+    `${stores.size} loja${stores.size === 1 ? "" : "s"}`
+  ];
+
+  if (latest) {
+    parts.push("preços conferidos em " + latest.toLocaleDateString("pt-BR"));
+  } else {
+    parts.push("você compra direto na loja");
+  }
+
+  $("#trustMeta").textContent = parts.join(" · ");
+
+}
+
+
+/* MAIORES DESCONTOS (fileira com rolagem lateral) */
+
+function renderHighlights() {
+
+  const list = products
+    .map(product => {
+
+      const best = product.offers.find(offer => offer.price !== null);
+
+      if (!best || !product.oldPrice || product.oldPrice <= best.price) {
+        return null;
+      }
+
+      return {
+        product: product,
+        best: best,
+        percent: Math.round((1 - best.price / product.oldPrice) * 100)
+      };
+
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.percent - a.percent)
+    .slice(0, 8);
+
+  if (list.length < 3) {
+    $("#highlights").hidden = true;
+    return;
+  }
+
+  $("#hlRow").innerHTML = list
+    .map(({ product, best, percent }) => `
+
+      <button class="hl-card" data-id="${product.id}">
+
+        <span class="hl-off">-${percent}%</span>
+
+        <span class="hl-photo${product.image ? "" : " no-image"}">
+          ${product.image ? `
+          <img
+            src="${escapeHtml(product.image)}"
+            alt=""
+            loading="lazy"
+            referrerpolicy="no-referrer"
+            onerror="this.parentNode.classList.add('no-image')"
+          >` : ""}
+        </span>
+
+        <span class="hl-name">${escapeHtml(product.name)}</span>
+
+        <span class="hl-price">${formatMoney(best.price)}</span>
+
+        <span class="hl-old">${formatMoney(product.oldPrice)}</span>
+
+      </button>
+
+    `)
+    .join("");
+
+  $("#highlights").hidden = false;
 
 }
 
@@ -889,6 +1009,17 @@ $("#products").addEventListener("keydown", event => {
 });
 
 
+$("#hlRow").addEventListener("click", event => {
+
+  const card = event.target.closest(".hl-card");
+
+  if (!card) return;
+
+  openProduct(Number(card.dataset.id));
+
+});
+
+
 $("#pmClose").addEventListener("click", closeProduct);
 
 
@@ -1053,7 +1184,7 @@ $("#allCategories").addEventListener(
 
 
     document
-      .querySelector(".section")
+      .querySelector("#categoriesSection")
       .scrollIntoView({
         behavior: "smooth"
       });
