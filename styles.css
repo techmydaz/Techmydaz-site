@@ -534,6 +534,7 @@ h1 span {
 }
 
 .hl-old {
+  min-height: 14px;
   padding: 0 10px;
   color: #666;
   font-size: 11px;
