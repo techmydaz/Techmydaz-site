@@ -757,41 +757,44 @@ function renderTrust() {
 }
 
 
-/* MAIORES DESCONTOS (fileira com rolagem lateral) */
+/*
+  DESTAQUES (fileira com rolagem lateral)
+  Mostra os produtos com Badge "TOP", do mais novo para o mais antigo
+  (o que está mais embaixo na planilha aparece primeiro).
+  Limite: os 10 mais recentes.
+*/
+
+const HIGHLIGHT_BADGE = "top";   // badge que coloca o produto nos destaques
+const HIGHLIGHT_LIMIT = 10;      // quantos produtos aparecem na fileira
 
 function renderHighlights() {
 
   const list = products
-    .map(product => {
+    .filter(product => normalize(product.badge) === HIGHLIGHT_BADGE)
+    .slice(0, HIGHLIGHT_LIMIT);
 
-      const best = product.offers.find(offer => offer.price !== null);
-
-      if (!best || !product.oldPrice || product.oldPrice <= best.price) {
-        return null;
-      }
-
-      return {
-        product: product,
-        best: best,
-        percent: Math.round((1 - best.price / product.oldPrice) * 100)
-      };
-
-    })
-    .filter(Boolean)
-    .sort((a, b) => b.percent - a.percent)
-    .slice(0, 8);
-
-  if (list.length < 3) {
+  if (!list.length) {
     $("#highlights").hidden = true;
     return;
   }
 
   $("#hlRow").innerHTML = list
-    .map(({ product, best, percent }) => `
+    .map(product => {
+
+      const best = product.offers.find(offer => offer.price !== null);
+
+      const hasDiscount =
+        best && product.oldPrice && product.oldPrice > best.price;
+
+      const percent = hasDiscount
+        ? Math.round((1 - best.price / product.oldPrice) * 100)
+        : 0;
+
+      return `
 
       <button class="hl-card" data-id="${product.id}">
 
-        <span class="hl-off">-${percent}%</span>
+        <span class="hl-off">${hasDiscount ? "-" + percent + "%" : "TOP"}</span>
 
         <span class="hl-photo${product.image ? "" : " no-image"}">
           ${product.image ? `
@@ -806,13 +809,15 @@ function renderHighlights() {
 
         <span class="hl-name">${escapeHtml(product.name)}</span>
 
-        <span class="hl-price">${formatMoney(best.price)}</span>
+        <span class="hl-price">${best ? formatMoney(best.price) : "Ver preço"}</span>
 
-        <span class="hl-old">${formatMoney(product.oldPrice)}</span>
+        <span class="hl-old">${hasDiscount ? formatMoney(product.oldPrice) : ""}</span>
 
       </button>
 
-    `)
+      `;
+
+    })
     .join("");
 
   $("#highlights").hidden = false;
