@@ -719,6 +719,7 @@ h1 span {
 .store-shopee       { --store-color: #ee4d2d; }   /* vermelho/laranja da Shopee */
 .store-mercadolivre { --store-color: #ffe600; }   /* amarelo do Mercado Livre */
 .store-amazon       { --store-color: #3b9cff; }   /* azul da Amazon */
+.store-aliexpress   { --store-color: #ff4747; }   /* vermelho da AliExpress */
 
 /* ---- Informações do produto ---- */
 
