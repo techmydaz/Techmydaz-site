@@ -147,6 +147,7 @@ function storeKey(storeName) {
   if (name.includes("shopee")) return "shopee";
   if (name.includes("mercado")) return "mercadolivre";
   if (name.includes("amazon")) return "amazon";
+  if (name.replace(/\s/g, "").includes("aliexpress")) return "aliexpress";
 
   return "outra";
 }
@@ -538,7 +539,7 @@ function renderFilters() {
     });
   });
 
-  const order = ["shopee", "mercado livre", "amazon"];
+  const order = ["shopee", "mercado livre", "amazon", "aliexpress"];
 
   names.sort((a, b) => {
 
